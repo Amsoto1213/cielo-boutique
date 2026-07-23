@@ -22,7 +22,7 @@ export function CTAFinal() {
           <div>
             <div style={{ ...sans, color: C.sand }} className="text-[11px] uppercase tracking-[0.12em] mb-1">Escríbenos</div>
             <div style={{ ...sans, color: C.warm }} className="text-sm leading-relaxed">
-              hola@cieloboutique.co<br />+57 300 000 0000
+              ventascielo@gmail.com.co<br />+57 311 3140639
             </div>
           </div>
         </div>
