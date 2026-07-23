@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { C, serif, sans } from "../../styles/tokens";
 import { fetchProductoPorId, fetchSugeridos } from "../../api/productos";
+import { useToast } from "../../context/ToastContext";
 
 export function ProductoDetalle({ onAdd }) {
+  const { mostrarToast } = useToast();
   const { id } = useParams();
   const [producto, setProducto] = useState(null);
   const [sugerencias, setSugerencias] = useState([]);
@@ -71,11 +73,11 @@ export function ProductoDetalle({ onAdd }) {
 
   const agregarAlCarrito = () => {
     if (!tallaSeleccionada) {
-      alert("Por favor selecciona una talla");
+      mostrarToast("Por favor selecciona una talla", "error");
       return;
     }
     if (cantidad < 1 || cantidad > stockDisponible) {
-      alert("La cantidad seleccionada no está disponible en stock.");
+      mostrarToast("La cantidad seleccionada no está disponible en stock.", "error");
       return;
     }
 
@@ -94,6 +96,7 @@ export function ProductoDetalle({ onAdd }) {
     };
 
     if (onAdd) onAdd(productoParaCarrito, tallaSeleccionada, cantidad);
+    mostrarToast("Añadido al carrito con éxito", "success");
   };
 
   return (
@@ -141,7 +144,7 @@ export function ProductoDetalle({ onAdd }) {
                 <span style={sans} className="text-sm line-through text-gray-400">
                   ${producto.precio.toLocaleString()} COP
                 </span>
-                <span style={sans} className="bg-yellow-50 text-yellow-700 text-xs px-2 py-1 font-medium tracking-wide uppercase">
+                <span style={sans} className="bg-red-50 text-red-700 text-xs px-2 py-1 font-medium tracking-wide uppercase">
                   -{producto.descuento}%
                 </span>
               </>

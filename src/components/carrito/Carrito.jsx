@@ -5,8 +5,10 @@ import { EarthButton } from "../common/Botones";
 import { Star } from "../common/Marca";
 import { PriceTag } from "../common/PriceTag";
 import { crearPedido } from "../../api/pedidos";
+import { useToast } from "../../context/ToastContext";
 
 export function Carrito({ abierto, cerrar, items, quitar, actualizarCantidad, actualizarTalla, vaciarCarrito }) {
+  const { mostrarToast } = useToast();
   const [paso, setPaso] = useState("carrito"); // carrito | envio | confirmado
   const [envio, setEnvio] = useState({
     nombre: "",
@@ -38,7 +40,7 @@ export function Carrito({ abierto, cerrar, items, quitar, actualizarCantidad, ac
   const confirmarPedido = async (e) => {
     e.preventDefault();
     if (!envio.nombre || !envio.email || !envio.telefono || !envio.documento || !envio.direccion) {
-      alert("Completa nombre, correo, teléfono, documento y dirección de envío.");
+      mostrarToast("Completa nombre, correo, teléfono, documento y dirección de envío.", "error");
       return;
     }
     setEnviando(true);
@@ -50,10 +52,7 @@ export function Carrito({ abierto, cerrar, items, quitar, actualizarCantidad, ac
       if (vaciarCarrito) vaciarCarrito();
     } catch (error) {
       console.error("Error creando el pedido:", error.message);
-      alert(
-        "Hubo un problema al registrar tu pedido. Intenta de nuevo en unos segundos.\n\n" +
-          "Detalle técnico: " + error.message
-      );
+      mostrarToast("Hubo un problema al registrar tu pedido. Intenta de nuevo en unos segundos.", "error");
     } finally {
       setEnviando(false);
     }

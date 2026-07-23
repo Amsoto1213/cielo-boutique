@@ -31,7 +31,7 @@ export function AdminContenido() {
       await cargarImagenes();
       alert("Imágenes subidas con éxito.");
     } catch (error) {
-      alert("Hubo un error al subir: " + error.message);
+      mostrarToast("Hubo un error al subir: " + error.message, "error");
     } finally {
       setSubiendo(false);
     }

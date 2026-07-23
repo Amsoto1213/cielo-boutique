@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from "react";
 import { crearProducto } from "../../api/productos";
+import { useToast } from "../../context/ToastContext";
 
 const inputStyle = { fontFamily: "'Jost', sans-serif", border: `1px solid #E8DCC2` };
 const OTRA = "__otra__";
 
 export function AdminFormNuevoProducto({ onGuardar, categoriasExistentes = [] }) {
+  const { mostrarToast } = useToast();
   const vacio = {
     nombre: "",
     categoria: "",
@@ -22,7 +24,7 @@ export function AdminFormNuevoProducto({ onGuardar, categoriasExistentes = [] })
   // Combina las categorías que ya existen en tus productos con las 4 de
   // referencia, para que el select siempre esté al día sin tocar código.
   const opcionesCategoria = useMemo(() => {
-    const base = ["Vestidos", "Accesorios", "Sets", "Novedades", "Camisas y Blusas", "Pantalones", "Faldas", "Shorts", "Enterizos", "Cielo Essentials", "Sale"];
+    const base = ["Vestidos", "Sastrería", "Punto", "Accesorios"];
     return Array.from(new Set([...base, ...categoriasExistentes])).sort();
   }, [categoriasExistentes]);
 
@@ -58,7 +60,7 @@ export function AdminFormNuevoProducto({ onGuardar, categoriasExistentes = [] })
   const submit = async (e) => {
     e.preventDefault();
     if (!form.nombre || !form.precio || !form.categoria || archivos.length === 0) {
-      alert("Por favor completa nombre, categoría, precio y selecciona al menos una foto de tu PC.");
+      mostrarToast("Por favor completa nombre, categoría, precio y selecciona al menos una foto de tu PC.", "error");
       return;
     }
     setSubiendo(true);
@@ -69,10 +71,10 @@ export function AdminFormNuevoProducto({ onGuardar, categoriasExistentes = [] })
       setEscribiendoOtra(false);
       archivos.forEach((a) => URL.revokeObjectURL(a.previewUrl));
       setArchivos([]);
-      alert("Producto creado exitosamente");
+      mostrarToast("Producto creado exitosamente", "success");
     } catch (error) {
       console.error(error);
-      alert("Hubo un error al guardar: " + error.message);
+      mostrarToast("Hubo un error al guardar: " + error.message, "error");
     } finally {
       setSubiendo(false);
     }

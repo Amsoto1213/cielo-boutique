@@ -7,8 +7,10 @@ import { AdminTabla } from "../components/AdminTabla";
 import { AdminFormNuevoProducto } from "../components/AdminFormNuevoProducto";
 import { AdminPedidos } from "../components/AdminPedidos";
 import { AdminContenido } from "../components/AdminContenido";
+import { useToast } from "../../context/ToastContext";
 
 export function AdminDashboard({ productos, setProductos, heroImg, setHeroImg, pedidos, setPedidos, onCerrarSesion }) {
+  const { mostrarToast } = useToast();
   const [tab, setTab] = useState("lista");
 
   const categoriasExistentes = useMemo(
@@ -28,7 +30,7 @@ export function AdminDashboard({ productos, setProductos, heroImg, setHeroImg, p
       setProductos((prev) => prev.map((p) => (p.id === producto.id ? { ...p, activo: nuevoEstado } : p)));
     } catch (error) {
       console.error("Error al cambiar el estado del producto:", error.message);
-      alert("No se pudo actualizar el estado: " + error.message);
+      mostrarToast("No se pudo actualizar el estado: " + error.message, "error");
     }
   };
 
@@ -37,27 +39,31 @@ export function AdminDashboard({ productos, setProductos, heroImg, setHeroImg, p
     try {
       cantidadPedidos = await contarPedidosDeProducto(id);
     } catch (error) {
-      alert("No se pudo verificar si el producto tiene pedidos asociados: " + error.message);
+      mostrarToast("No se pudo verificar si el producto tiene pedidos asociados: " + error.message, "error");
       return;
     }
 
     if (cantidadPedidos > 0) {
-      alert(
+      mostrarToast(
         `Este producto aparece en ${cantidadPedidos} pedido(s), así que no se puede eliminar de forma permanente ` +
-          `(se perdería esa información del historial). Usa "Desactivar" en su lugar.`
+          `(se perdería esa información del historial). Usa "Desactivar" en su lugar.`,
+        "info",
+        6000
       );
       return;
     }
 
+    // La confirmación de "sí/no" se deja como diálogo nativo del navegador,
+    // ya que un toast no puede bloquear la acción esperando una respuesta.
     if (!confirm("¿Eliminar este producto de forma permanente? No tiene pedidos asociados, pero esta acción no se puede deshacer.")) return;
 
     try {
       await eliminarProductoPermanente(id);
       setProductos((prev) => prev.filter((p) => p.id !== id));
-      alert("Producto eliminado permanentemente.");
+      mostrarToast("Producto eliminado permanentemente.", "success");
     } catch (error) {
       console.error("Error al eliminar:", error.message);
-      alert("Hubo un error al intentar eliminar el producto: " + error.message);
+      mostrarToast("Hubo un error al intentar eliminar el producto: " + error.message, "error");
     }
   };
 
@@ -82,10 +88,11 @@ export function AdminDashboard({ productos, setProductos, heroImg, setHeroImg, p
             : p
         )
       );
+      mostrarToast("Cambios guardados.", "success");
       return true;
     } catch (error) {
       console.error("Error al guardar los cambios del producto:", error.message);
-      alert("No se pudieron guardar los cambios: " + error.message);
+      mostrarToast("No se pudieron guardar los cambios: " + error.message, "error");
       return false;
     }
   };
@@ -98,7 +105,7 @@ export function AdminDashboard({ productos, setProductos, heroImg, setHeroImg, p
       await actualizarEstadoPedido(id, estado);
     } catch (error) {
       console.error("Error al actualizar estado del pedido:", error.message);
-      alert("No se pudo actualizar el estado en el servidor: " + error.message);
+      mostrarToast("No se pudo actualizar el estado en el servidor: " + error.message, "error");
       setPedidos((prev) => prev.map((p) => (p.id === id ? { ...p, estado: anterior } : p)));
     }
   };
